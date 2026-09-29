@@ -1,6 +1,6 @@
 # Queue Operations Console
 
-A front-desk queue management console for busy clinic staff, built for the **Frontend Lead – Technical Assessment** (see `Frontend_Lead_Assessment.pdf`).
+A front-desk queue management console for busy clinic staff, built for the **Frontend Lead – Technical Assessment** (Part A: build, Part B: `REVIEW.md`).
 
 Front-desk staff manage a waiting queue on a desktop or tablet. They are constantly interrupted, often standing, frequently talking to a customer while using the console. Every design decision in this repo starts from that context.
 
