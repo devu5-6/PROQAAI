@@ -1,0 +1,10 @@
+node_modules/
+dist/
+storybook-static/
+coverage/
+*.local
+.DS_Store
+npm-debug.log*
+dev-server.log
+.freebuff/
+Frontend_Lead_Assessment.pdf
