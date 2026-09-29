@@ -1,0 +1,11 @@
+Model Information:
+* title:	Human Heart
+* source:	https://sketchfab.com/3d-models/human-heart-bdb9d77136b64612bacabae60a5ed9ce
+* author:	reynosa2000 (https://sketchfab.com/reynosa2000)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Human Heart" (https://sketchfab.com/3d-models/human-heart-bdb9d77136b64612bacabae60a5ed9ce) by reynosa2000 (https://sketchfab.com/reynosa2000) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Drawer } from "./Drawer";
 import { Button } from "./Button";
+import { X } from "@phosphor-icons/react";
 
 const meta = {
   title: "Design System/Drawer",
@@ -15,7 +16,9 @@ function Body() {
     <>
       <div className="drawer-header">
         <h2>Amara Okafor</h2>
-        <Button variant="ghost">✕ Close</Button>
+        <Button variant="ghost">
+          <X size={14} weight="bold" aria-hidden /> Close
+        </Button>
       </div>
       <div className="drawer-body">
         <dl className="detail-grid">

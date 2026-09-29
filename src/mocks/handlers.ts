@@ -5,7 +5,7 @@ import { seedAllQueues } from "./data";
 
 /**
  * In-memory "server" state. Survives across requests within a session,
- * resets on page reload — enough to exercise optimistic flows.
+ * resets on page reload. Enough to exercise optimistic flows.
  */
 const db: Record<QueueId, QueueSnapshot> = seedAllQueues();
 

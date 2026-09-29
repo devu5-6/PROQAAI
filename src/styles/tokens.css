@@ -1,70 +1,90 @@
-/* Design tokens — single source of truth for the mini design system.
-   Components read from these variables; no raw hex values in component CSS. */
+/* ============================================================
+   Design tokens - single source of truth.
+   Theme: biotrack light (default) with a synced dark mode.
+
+   Light: near-white glassy surfaces, soft shadows, steel-blue
+   accent (bio-track blue), one functional red/green family for
+   status only. Dark: deep near-black slate, white accents.
+
+   Shape lock: 16px cards / 22px floating bars / 12px controls /
+   pill chips. Type: Geist Variable + Geist Mono numerals.
+   ============================================================ */
 
 :root {
-  /* Color primitives */
-  --ink-900: #101828;
-  --ink-700: #344054;
-  --ink-500: #667085;
-  --ink-300: #98a2b3;
-  --ink-100: #f2f4f7;
-  --ink-50: #f9fafb;
+  /* Surfaces: paper family */
+  --bg: #eef1f5;
+  --bg-2: #e4e9f0;
+  --surface: #ffffff;
+  --surface-2: #f4f6fa;
+  --surface-3: #eceff4;
+  --surface-glass: rgb(255 255 255 / 0.66);
+  --surface-glass-strong: rgb(255 255 255 / 0.82);
 
-  --teal-700: #0e7490;
-  --teal-600: #0891b2;
-  --teal-100: #cffafe;
-  --teal-50: #ecfeff;
+  --border: #e3e8f0;
+  --border-strong: #d3dae6;
+  --border-subtle: #edf0f6;
 
-  --red-700: #b42318;
-  --red-600: #d92d20;
-  --red-100: #fee4e2;
-  --red-50: #fef3f2;
+  /* Text */
+  --text: #131a26;
+  --text-2: #46536b;
+  --text-3: #7a8699;
+  --text-invert: #ffffff;
 
-  --amber-700: #b54708;
-  --amber-600: #dc6803;
-  --amber-100: #fef0c7;
+  /* Accent: biotrack steel blue */
+  --accent-100: #e8f0fb;
+  --accent-200: #d3e2f7;
+  --accent-300: #a8c6ef;
+  --accent-400: #6f9bd8;
+  --accent-500: #4f7fc4;
+  --accent-600: #3c66a8;
 
-  --green-700: #067647;
-  --green-100: #dcfae6;
+  --primary: var(--accent-500);
+  --primary-hover: var(--accent-600);
+  --primary-soft: var(--accent-100);
+  --focus: #4f7fc4;
+  --focus-ring: rgb(79 127 196 / 0.35);
 
-  --violet-700: #6941c6;
-  --violet-100: #ebe9fe;
+  /* Vortex background strands: near-black in light mode. */
+  --vortex-streak: #0e131b;
 
-  --white: #ffffff;
+  /* Functional (status-only) */
+  --ok: #2e9e6b;
+  --ok-soft: #e4f5ec;
+  --danger: #d4494f;
+  --danger-hover: #b93a40;
+  --danger-soft: #fbeaea;
+  --danger-border: #f1caca;
+  --danger-100: #f6dcdc;
 
-  /* Semantic aliases */
-  --color-bg: var(--white);
-  --color-surface: var(--white);
-  --color-surface-muted: var(--ink-50);
-  --color-border: #d0d5dd;
-  --color-border-subtle: var(--ink-100);
-  --color-text: var(--ink-900);
-  --color-text-secondary: var(--ink-500);
-  --color-text-inverted: var(--white);
+  --warn: #b97f10;
+  --warn-strong: #8a5d08;
+  --warn-soft: #fbf3df;
+  --warn-border: #ecd9a8;
 
-  --color-primary: var(--teal-700);
-  --color-primary-hover: var(--teal-600);
-  --color-primary-muted: var(--teal-100);
-  --color-primary-subtle: var(--teal-50);
+  --gray-50: #f6f8fb;
+  --gray-100: #eef1f6;
+  --gray-200: #e3e8f0;
+  --gray-300: #d3dae6;
+  --gray-400: #9aa6ba;
 
-  --color-danger: var(--red-600);
-  --color-danger-hover: var(--red-700);
-  --color-danger-muted: var(--red-100);
-  --color-danger-subtle: var(--red-50);
+  /* Skeletons */
+  --skeleton-a: #e9edf4;
+  --skeleton-b: #f7f9fc;
 
-  --color-warning: var(--amber-600);
-  --color-warning-strong: var(--amber-700);
-  --color-warning-muted: var(--amber-100);
+  /* Elevation: layered soft shadows */
+  --shadow-1: 0 1px 2px rgb(19 26 38 / 0.05);
+  --shadow-2: 0 2px 8px rgb(19 26 38 / 0.07), 0 1px 2px rgb(19 26 38 / 0.04);
+  --shadow-3: 0 18px 40px rgb(19 26 38 / 0.12), 0 2px 8px rgb(19 26 38 / 0.06);
+  --shadow-float: 0 24px 60px rgb(19 26 38 / 0.14), 0 4px 12px rgb(19 26 38 / 0.08);
 
-  --color-success: var(--green-700);
-  --color-success-muted: var(--green-100);
+  /* Chips (light tint pills) */
+  --chip-bg: var(--accent-100);
+  --chip-text: var(--accent-600);
 
-  --color-info: var(--violet-700);
-  --color-info-muted: var(--violet-100);
+  --z-drawer: 100;
+  --z-toast: 200;
 
-  --color-focus-ring: #7cb7ff;
-
-  /* Spacing scale (4px base) */
+  /* Spacing (4px base) */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -74,51 +94,108 @@
   --space-8: 2rem;
   --space-10: 2.5rem;
 
-  /* Type scale */
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Type */
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
 
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
   --text-md: 0.875rem;
-  --text-lg: 1rem;
+  --text-lg: 0.9375rem;
   --text-xl: 1.125rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 2rem;
+  --text-2xl: 1.375rem;
+  --text-stat: 1.75rem;
 
-  --leading-tight: 1.25;
-  --leading-normal: 1.45;
+  --leading-tight: 1.3;
+  --leading-normal: 1.5;
 
   --weight-regular: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
-  --weight-bold: 700;
 
-  /* Radius, shadow, layout */
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --tracking-caps: 0.05em;
+
+  /* Shape lock */
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
   --radius-pill: 999px;
 
-  --shadow-1: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.1);
-  --shadow-2: 0 4px 8px -2px rgba(16, 24, 40, 0.1), 0 2px 4px -2px rgba(16, 24, 40, 0.06);
-  --shadow-3: 0 12px 16px -4px rgba(16, 24, 40, 0.08), 0 4px 6px -2px rgba(16, 24, 40, 0.03);
-
-  --z-drawer: 100;
-  --z-toast: 200;
-
-  /* Motion */
   --dur-fast: 120ms;
   --dur-normal: 200ms;
-  --dur-slow: 320ms;
   --ease-out: cubic-bezier(0.2, 0, 0, 1);
 
-  /* Layout */
   --touch-target: 44px;
-  --table-row-min: 56px;
+
+  color-scheme: light;
 }
 
-/* Long-wait emphasis token (used by summary strip and rows) */
-:root {
-  --wait-long-mins: 20;
+/* ---------- Dark theme (synced with the sidebar toggle) ---------- */
+:root[data-theme="dark"] {
+  --bg: #0b1120;
+  --bg-2: #0e1524;
+  --surface: #101828;
+  --surface-2: #17223b;
+  --surface-3: #1d2a44;
+  --surface-glass: rgb(16 24 40 / 0.6);
+  --surface-glass-strong: rgb(16 24 40 / 0.8);
+
+  --border: #26334d;
+  --border-strong: #3b4a66;
+  --border-subtle: #1b2536;
+
+  --text: #f1f5f9;
+  --text-2: #9fb0c6;
+  --text-3: #8494ab;
+  --text-invert: #061019;
+
+  --accent-100: #12233d;
+  --accent-200: #17304f;
+  --accent-300: #27496f;
+  --accent-400: #5f8ecf;
+  --accent-500: #7fb0e8;
+  --accent-600: #a5c8f2;
+
+  --primary: var(--accent-400);
+  --primary-hover: var(--accent-500);
+  --primary-soft: var(--accent-100);
+  --focus: #7fb0e8;
+  --focus-ring: rgb(127 176 232 / 0.4);
+
+  /* Vortex background strands: silver-blue in dark mode. */
+  --vortex-streak: #5f8ecf;
+
+  --ok: #4ade80;
+  --ok-soft: rgb(74 222 128 / 0.12);
+  --danger: #f87171;
+  --danger-hover: #fca5a5;
+  --danger-soft: rgb(248 113 113 / 0.12);
+  --danger-border: rgb(248 113 113 / 0.28);
+  --danger-100: rgb(248 113 113 / 0.18);
+
+  --warn: #f59e0b;
+  --warn-strong: #fbbf24;
+  --warn-soft: rgb(245 158 11 / 0.1);
+  --warn-border: rgb(245 158 11 / 0.28);
+
+  --gray-50: #17223b;
+  --gray-100: #1d2a44;
+  --gray-200: #26334d;
+  --gray-300: #3b4a66;
+  --gray-400: #64748b;
+
+  --skeleton-a: #17223b;
+  --skeleton-b: #223050;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.35);
+  --shadow-2: 0 2px 8px rgb(0 0 0 / 0.4), 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-3: 0 18px 40px rgb(0 0 0 / 0.5), 0 2px 8px rgb(0 0 0 / 0.4);
+  --shadow-float: 0 24px 60px rgb(0 0 0 / 0.55), 0 4px 12px rgb(0 0 0 / 0.45);
+
+  --chip-bg: var(--accent-100);
+  --chip-text: var(--accent-600);
+
+  color-scheme: dark;
 }

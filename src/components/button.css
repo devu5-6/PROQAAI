@@ -1,4 +1,4 @@
-/* Button */
+/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -7,154 +7,134 @@
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   font-weight: var(--weight-medium);
+  font-size: var(--text-sm);
   cursor: pointer;
-  min-height: 36px;
+  white-space: nowrap;
+  min-height: 34px;
   padding: 0 var(--space-3);
-  transition: background var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
 }
 
-.btn:focus-visible {
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: 2px;
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .btn:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .btn--sm {
-  font-size: var(--text-sm);
   min-height: 32px;
 }
 
 .btn--md {
   font-size: var(--text-md);
-  min-height: var(--touch-target);
+  min-height: 40px;
   padding: 0 var(--space-4);
 }
 
 .btn--primary {
-  background: var(--color-primary);
-  color: var(--color-text-inverted);
+  background: var(--primary);
+  color: var(--text-invert);
+  box-shadow: var(--shadow-1);
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: var(--color-primary-hover);
+  background: var(--primary-hover);
 }
 
 .btn--secondary {
-  background: var(--color-surface);
-  border-color: var(--color-border);
-  color: var(--color-text);
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text);
+  box-shadow: var(--shadow-1);
 }
 
 .btn--secondary:hover:not(:disabled) {
-  background: var(--color-surface-muted);
+  background: var(--gray-50);
 }
 
 .btn--danger {
-  background: var(--color-surface);
-  border-color: var(--color-danger);
-  color: var(--color-danger-hover);
+  background: var(--surface);
+  border-color: var(--gray-300);
+  color: var(--danger-hover);
 }
 
 .btn--danger:hover:not(:disabled) {
-  background: var(--color-danger-subtle);
+  background: var(--danger-soft);
+  border-color: var(--danger-100);
 }
 
 .btn--ghost {
   background: transparent;
-  color: var(--color-primary);
+  color: var(--text-2);
 }
 
 .btn--ghost:hover:not(:disabled) {
-  background: var(--color-primary-subtle);
+  background: var(--gray-100);
+  color: var(--text);
 }
 
 .btn__spinner {
   display: inline-flex;
 }
 
-/* Badge (status pills) */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-pill);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  border: 1px solid transparent;
+.btn__spinner svg {
+  animation: btn-spin 0.8s linear infinite;
 }
 
-.badge--waiting {
-  background: var(--color-primary-muted);
-  color: var(--color-primary);
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.badge--called {
-  background: var(--color-info-muted);
-  color: var(--color-info);
-}
-
-.badge--served {
-  background: var(--color-success-muted);
-  color: var(--color-success);
-}
-
-.badge--no_show {
-  background: var(--color-danger-muted);
-  color: var(--color-danger-hover);
-}
-
-.badge .dot::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-  display: inline-block;
+@media (prefers-reduced-motion: reduce) {
+  .btn__spinner svg {
+    animation: none;
+  }
 }
 
 /* Select */
 .select {
-  min-height: 36px;
+  min-height: 34px;
   padding: 0 var(--space-3);
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
   font: inherit;
   font-size: var(--text-sm);
+  box-shadow: var(--shadow-1);
 }
 
-.select:focus-visible {
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: 1px;
+.select:hover {
+  background: var(--gray-50);
 }
 
-/* Name rendered as a button that opens the detail panel */
+/* Name-as-link inside the table */
 .link-like {
   background: none;
   border: none;
   padding: 0;
-  color: var(--color-primary);
+  color: var(--text);
   font: inherit;
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-medium);
   cursor: pointer;
   text-align: left;
   text-decoration: underline;
   text-decoration-color: transparent;
   text-underline-offset: 3px;
   transition: text-decoration-color var(--dur-fast) var(--ease-out);
-  min-height: 32px;
 }
 
 .link-like:hover,
 .link-like:focus-visible {
-  text-decoration-color: currentColor;
+  text-decoration-color: var(--gray-400);
 }
-
-/* Empty / error states reuse .state-box from global.css */

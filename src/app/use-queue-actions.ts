@@ -33,7 +33,7 @@ const QUEUE_LABELS: Record<QueueId, string> = Object.fromEntries(
   QUEUES.map((q) => [q.id, q.name])
 ) as Record<QueueId, string>;
 
-const ROLLBACK_SUFFIX = " Change was rolled back — please retry.";
+const ROLLBACK_SUFFIX = " Change was rolled back, please retry.";
 
 /**
  * All four queue actions are optimistic: the cache is patched immediately,

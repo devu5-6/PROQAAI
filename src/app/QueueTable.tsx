@@ -4,6 +4,7 @@ import { QUEUES } from "@/lib/constants";
 import { formatWait, waitInfo } from "@/lib/wait";
 import { Badge } from "@/components";
 import { Button } from "@/components/Button";
+import { Warning, Alarm } from "@phosphor-icons/react";
 import type { QueueActions } from "./use-queue-actions";
 
 export type ColumnId =
@@ -75,19 +76,16 @@ function Cell({ col, c, queueId, onSelect, actions, now }: CellProps) {
     case "wait": {
       const info = waitInfo(c.checkedInAt, now);
       const cls = info.level === "stale" ? "stale" : info.level === "long" ? "long" : "";
+      const WarnIcon = info.level === "stale" ? Alarm : Warning;
       return (
         <span className={`wait-pill ${cls}`}>
-          {info.level !== "ok" && (
-            <i className="icon" aria-hidden="true">
-              {info.level === "stale" ? "⏰" : "⚠"}
-            </i>
-          )}
+          {info.level !== "ok" && <WarnIcon size={12} weight="fill" aria-hidden />}
           {formatWait(info.mins)}
           <span className="sr-only">
             {info.level === "stale"
-              ? " — stale, over 40 minutes"
+              ? ", stale: over 40 minutes"
               : info.level === "long"
-                ? " — long, over 20 minutes"
+                ? ", long: over 20 minutes"
                 : ""}
           </span>
         </span>
@@ -100,7 +98,7 @@ function Cell({ col, c, queueId, onSelect, actions, now }: CellProps) {
     case "visitReason":
       return c.visitReason;
     case "notes":
-      return c.notes ? c.notes : "—";
+      return c.notes ? c.notes : "None";
     case "createdBy":
       return c.createdBy;
     case "ticketNumber":
@@ -145,7 +143,7 @@ function Cell({ col, c, queueId, onSelect, actions, now }: CellProps) {
               void actions.move.mutateAsync({ customerId: c.id, to }).catch(() => undefined);
             }}
           >
-            <option value="">Move to…</option>
+            <option value="">Move to...</option>
             {QUEUES.filter((q) => q.id !== queueId).map((q) => (
               <option key={q.id} value={q.id}>
                 {q.name}

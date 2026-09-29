@@ -1,24 +1,25 @@
 import type { QueueStatus } from "@/types";
 import { STATUS_LABELS } from "@/lib/constants";
+import { Clock, BellRinging, CheckCircle, UserMinus } from "@phosphor-icons/react";
 import "./button.css";
 
-const STATUS_ICONS: Record<QueueStatus, string> = {
-  waiting: "⏳",
-  called: "🔔",
-  served: "✓",
-  no_show: "∅",
-};
+const STATUS_ICONS = {
+  waiting: Clock,
+  called: BellRinging,
+  served: CheckCircle,
+  no_show: UserMinus,
+} as const;
 
 interface BadgeProps {
   status: QueueStatus;
 }
 
-/** Status conveyed by label + icon + color — never color alone (a11y req). */
+/* Status = icon + label + tint. Never color alone (a11y requirement). */
 export function Badge({ status }: BadgeProps) {
+  const Icon = STATUS_ICONS[status];
   return (
-    <span className={`badge badge--${status}`}>
-      <span className="dot" aria-hidden="true" />
-      <span aria-hidden="true" className="icon">{STATUS_ICONS[status]}</span>
+    <span className={`status-pill status-pill--${status}`}>
+      <Icon size={12} weight="bold" aria-hidden />
       {STATUS_LABELS[status]}
     </span>
   );

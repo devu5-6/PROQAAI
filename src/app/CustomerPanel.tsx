@@ -2,6 +2,7 @@ import type { Customer, QueueId } from "@/types";
 import { QUEUES } from "@/lib/constants";
 import { formatWait, waitInfo } from "@/lib/wait";
 import { Badge, Button, Drawer } from "@/components";
+import { X } from "@phosphor-icons/react";
 import type { QueueActions } from "./use-queue-actions";
 
 interface CustomerPanelProps {
@@ -12,8 +13,8 @@ interface CustomerPanelProps {
 }
 
 /**
- * Customer detail panel (drawer). Shows all 14 fields — the PM's "staff
- * never have to click" concern is answered here with a single click, not
+ * Customer detail panel (drawer). Shows all 14 fields, so the PM's "staff
+ * never have to click" concern is answered with a single click, not
  * fourteen columns of unreadable table.
  */
 export function CustomerPanel({ customer, queueId, onClose, actions }: CustomerPanelProps) {
@@ -26,20 +27,26 @@ export function CustomerPanel({ customer, queueId, onClose, actions }: CustomerP
           <div className="drawer-header">
             <h2 id="drawer-title">{customer.name}</h2>
             <Button variant="ghost" onClick={onClose} aria-label="Close customer details">
-              ✕ Close
+              <X size={14} weight="bold" aria-hidden /> Close
             </Button>
           </div>
           <div className="drawer-body">
-            <p style={{ marginBottom: "var(--space-4)" }}>
-              <Badge status={customer.status} />{" "}
-              <span className="num">
-                {info && (
-                  <>
-                    Waiting {formatWait(info.mins)}
-                    {info.level !== "ok" ? " — long wait" : ""}
-                  </>
-                )}
-              </span>
+            <p
+              style={{
+                marginBottom: "var(--space-4)",
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-3)",
+                flexWrap: "wrap",
+              }}
+            >
+              <Badge status={customer.status} />
+              {info && (
+                <span>
+                  Waiting <span className="num">{formatWait(info.mins)}</span>
+                  {info.level !== "ok" ? ", long wait" : ""}
+                </span>
+              )}
             </p>
 
             <dl className="detail-grid">
@@ -86,7 +93,7 @@ export function CustomerPanel({ customer, queueId, onClose, actions }: CustomerP
               </div>
               <div className="detail-item full">
                 <dt className="label">Notes</dt>
-                <dd className="value">{customer.notes || "—"}</dd>
+                <dd className="value">{customer.notes || "None"}</dd>
               </div>
               <div className="detail-item">
                 <dt className="label">Created by</dt>

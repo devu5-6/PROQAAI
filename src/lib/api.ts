@@ -18,6 +18,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     }
     throw new Error(message);
   }
+  // A 200 with a non-JSON body means the API layer is missing (e.g. the mock
+  // worker did not intercept and the SPA fallback served index.html). Surface
+  // that as a retryable service error instead of a JSON parse crash.
+  const type = res.headers.get("content-type") ?? "";
+  if (!type.includes("application/json")) {
+    throw new Error("The queue service is unavailable right now. Please retry.");
+  }
   return (await res.json()) as T;
 }
 

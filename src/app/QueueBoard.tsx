@@ -1,15 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Customer, QueueId } from "@/types";
-import { QUEUES } from "@/lib/constants";
+import { QUEUES, WAIT_LONG_MINS } from "@/lib/constants";
 import { computeStats } from "@/lib/stats";
 import { reorderForRender } from "@/lib/stability";
 import { useQueueQuery, useRecentArrivals } from "./use-queue-query";
 import { useQueueActions } from "./use-queue-actions";
 import type { ColumnId } from "./QueueTable";
 import { ALL_COLUMNS, QueueTable } from "./QueueTable";
-import { SummaryStrip } from "./SummaryStrip";
+import { QueueGauges } from "./QueueGauges";
 import { CustomerPanel } from "./CustomerPanel";
+import { Sidebar } from "./Sidebar";
+import { HeartModel } from "./HeartModel";
+import { Topbar } from "./Topbar";
+import { formatWait } from "@/lib/wait";
 import { Button, EmptyState, ErrorState, Select, SkeletonRows } from "@/components";
+import { WarningCircle, Warning, Tray } from "@phosphor-icons/react";
 
 const DEFAULT_COLUMNS: ColumnId[] = [
   "position",
@@ -26,10 +31,20 @@ interface QueueBoardProps {
   initialQueue?: QueueId;
 }
 
-export function QueueBoard({ initialQueue = "general" }: QueueBoardProps) {
+export default function QueueBoard({ initialQueue = "general" }: QueueBoardProps) {
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    const stored = window.localStorage.getItem("biotrack-theme");
+    return stored === "dark" ? "dark" : "light";
+  });
+  const [search, setSearch] = useState("");
   const [queueId, setQueueId] = useState<QueueId>(initialQueue);
   const [selected, setSelected] = useState<Customer | null>(null);
   const [visibleColumns, setVisibleColumns] = useState<ColumnId[]>(DEFAULT_COLUMNS);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem("biotrack-theme", theme);
+  }, [theme]);
 
   const query = useQueueQuery(queueId);
   const actions = useQueueActions(queueId);
@@ -46,8 +61,24 @@ export function QueueBoard({ initialQueue = "general" }: QueueBoardProps) {
     () => (customers ? reorderForRender(customers, now) : []),
     [customers, now]
   );
-  const stats = useMemo(() => computeStats(query.data, now), [query.data, now]);
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return ordered;
+    return ordered.filter(
+      (c) =>
+        c.name.toLowerCase().includes(q) || c.visitReason.toLowerCase().includes(q)
+    );
+  }, [ordered, search]);
+  const stats = useMemo(
+    () => computeStats(query.data, now),
+    [query.data, now]
+  );
   const recent = useRecentArrivals(customers, now);
+
+  const waiting = stats.waiting;
+  const avg = Math.round(stats.avgWaitMins);
+  const longest = stats.longestWaitMins;
+  const longWait = longest >= WAIT_LONG_MINS;
 
   // Close the detail panel if its customer left the board (served, no-show, moved).
   useEffect(() => {
@@ -90,13 +121,60 @@ export function QueueBoard({ initialQueue = "general" }: QueueBoardProps) {
   );
 
   return (
-    <>
-      <SummaryStrip stats={stats} loading={query.isPending} />
+    <div className="shell">
+      <Sidebar theme={theme} onToggleTheme={() => setTheme(theme === "dark" ? "light" : "dark")} />
+      <div className="main" id="queue-main">
+        <div className="rise">
+          <Topbar search={search} onSearch={setSearch} />
+        </div>
 
-      <div className={`board-layout ${selected ? "with-panel" : ""}`}>
-        <section className="board-card" aria-label="Live queue board">
+        <section className="hero rise stagger-1" aria-label="Overview">
+          <h2>
+            Medical
+            <br />
+            Dashboard
+          </h2>
+          <div className="hero-stats">
+            <div className="hero-stat">
+              <div className="big num">{waiting}</div>
+              <div className="cap">In queue</div>
+            </div>
+            <div className="hero-stat">
+              <div className="big num">{formatWait(avg)}</div>
+              <div className="cap">Average wait</div>
+            </div>
+            <div className="hero-stat">
+              <div
+                className="big num"
+                style={longWait ? { color: "var(--warn-strong)" } : undefined}
+              >
+                {formatWait(longest)}
+                {longWait && (
+                  <Warning size={18} weight="fill" aria-hidden style={{ verticalAlign: "-2px" }} />
+                )}
+              </div>
+              <div className="cap">
+                {longWait
+                  ? `${stats.longestWaitName ?? "Someone"} · over ${WAIT_LONG_MINS} min`
+                  : "Longest wait"}
+              </div>
+            </div>
+            <div className="hero-stat">
+              <div className="big" style={{ fontSize: "1.4rem", paddingTop: 4 }}>
+                {longWait ? "Needs attention" : waiting === 0 ? "Clear" : "Steady"}
+              </div>
+              <div className="cap">Queue health</div>
+            </div>
+          </div>
+        </section>
+
+        <div className="heart-row rise stagger-2">
+          <HeartModel />
+          <div className="side-col">
+            <QueueGauges stats={stats} loading={query.isPending} />
+            <section className="board-card" aria-label="Live queue board">
           <div className="board-toolbar">
-            <h2>Waiting list</h2>
+            <h3>Waiting list</h3>
             <div className="toolbar-group">
               <Select
                 label="Queue"
@@ -114,6 +192,7 @@ export function QueueBoard({ initialQueue = "general" }: QueueBoardProps) {
                 size="md"
                 onClick={handleCallNext}
                 loading={actions.callNext.isPending}
+                disabled={ordered.length === 0}
               >
                 Call next
               </Button>
@@ -122,38 +201,52 @@ export function QueueBoard({ initialQueue = "general" }: QueueBoardProps) {
 
           {query.isPending ? (
             <SkeletonRows rows={6} />
-          ) : query.isError ? (
+          ) : !query.data && query.isError ? (
             <ErrorState
               message={query.error instanceof Error ? query.error.message : undefined}
               onRetry={() => void query.refetch()}
               retrying={query.isFetching}
             />
-          ) : ordered.length === 0 ? (
+          ) : query.data && filtered.length === 0 ? (
             <EmptyState
-              title="No one is waiting"
-              hint="New check-ins will appear here automatically. Enjoy the quiet moment."
+              icon={<Tray size={22} weight="duotone" />}
+              title={search ? "No matches" : "No one is waiting"}
+              hint={
+                search
+                  ? `Nothing in this queue matches “${search}”.`
+                  : "New check-ins appear here automatically as they come in."
+              }
             />
           ) : (
-            <QueueTable
-              customers={ordered}
-              queueId={queueId}
-              selectedId={selected?.id ?? null}
-              onSelect={setSelected}
-              actions={actions}
-              recentArrivals={recent}
-              now={now}
-              visibleColumns={visibleColumns}
-            />
+            <>
+              {query.isError && (
+                <div className="stale-banner" role="status">
+                  <WarningCircle size={14} weight="bold" aria-hidden="true" />
+                  <span>Live updates paused — showing the last known queue. Retrying…</span>
+                </div>
+              )}
+              <QueueTable
+                customers={filtered}
+                queueId={queueId}
+                selectedId={selected?.id ?? null}
+                onSelect={setSelected}
+                actions={actions}
+                recentArrivals={recent}
+                now={now}
+                visibleColumns={visibleColumns}
+              />
+            </>
           )}
-        </section>
-
-        <CustomerPanel
-          customer={selected}
-          queueId={queueId}
-          onClose={() => setSelected(null)}
-          actions={actions}
-        />
+            </section>
+          </div>
+        </div>
       </div>
-    </>
+      <CustomerPanel
+        customer={selected}
+        queueId={queueId}
+        onClose={() => setSelected(null)}
+        actions={actions}
+      />
+    </div>
   );
 }
