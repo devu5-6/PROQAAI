@@ -12,6 +12,12 @@
   display: none;
 }
 
+/* Closed picker: fully remove the menu from layout so the absolutely
+   positioned panel cannot add phantom page height (ghost scrollbar). */
+.column-picker:not([open]) .column-picker-menu {
+  display: none;
+}
+
 .column-picker-menu {
   position: absolute;
   top: calc(100% + 4px);

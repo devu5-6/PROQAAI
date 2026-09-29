@@ -150,7 +150,7 @@ export default function QueueBoard({ initialQueue = "general" }: QueueBoardProps
               >
                 {formatWait(longest)}
                 {longWait && (
-                  <Warning size={18} weight="fill" aria-hidden style={{ verticalAlign: "-2px" }} />
+                  <Warning size={18} weight="fill" aria-hidden />
                 )}
               </div>
               <div className="cap">
@@ -160,7 +160,7 @@ export default function QueueBoard({ initialQueue = "general" }: QueueBoardProps
               </div>
             </div>
             <div className="hero-stat">
-              <div className="big" style={{ fontSize: "1.4rem", paddingTop: 4 }}>
+              <div className="big big--text">
                 {longWait ? "Needs attention" : waiting === 0 ? "Clear" : "Steady"}
               </div>
               <div className="cap">Queue health</div>
