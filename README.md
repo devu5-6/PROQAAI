@@ -7,7 +7,7 @@ Front-desk staff manage a waiting queue on a desktop or tablet. They are constan
 ## Live demo & repo
 
 - **Repo:** https://github.com/devu5-6/PROQAAI
-- **Deployed app:** _(optional — see Deployment below; `VITE_ENABLE_MOCKS=true` is required)_
+- **Deployed app:** https://clinic-dashboard-zeta-liart.vercel.app/ (mocks enabled via `VITE_ENABLE_MOCKS=true` — see Deployment below)
 - **Storybook:** `npm run storybook` → http://localhost:6006
 
 ## Quick start
@@ -35,6 +35,8 @@ VITE_ENABLE_MOCKS=true
 Without it the build is fine but the board shows "Could not load the queue", because every `/api` request falls through to the static host's 404. Set the variable **before** the deploy, and rebuild — it is baked in at build time, not read at runtime.
 
 The worker script itself (`public/mockServiceWorker.js`) is committed, and the SPA needs no rewrite rules: MSW answers `/api` in the browser before any request reaches the host. `npm run build:app` produces a static `dist/` that can be served from any static host.
+
+**Live deployment:** https://clinic-dashboard-zeta-liart.vercel.app/ — built with `VITE_ENABLE_MOCKS=true`, so the full mock API (latency, failures, optimistic rollbacks) works out of the box.
 
 ## What's inside
 
