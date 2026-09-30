@@ -5,6 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Queue Operations Console for clinic front-desk staff" />
     <title>Queue Operations Console</title>
+    <!--
+      The 3D heart is the heaviest asset on the page. Fetching it here
+      lets the download run alongside the app bundle instead of waiting
+      for React to mount and three.js to parse.
+    -->
+    <link
+      rel="preload"
+      href="/models/human-heart/scene.gltf"
+      as="fetch"
+      type="model/gltf+json"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/models/human-heart/scene.bin"
+      as="fetch"
+      type="application/octet-stream"
+      crossorigin
+    />
   </head>
   <body>
     <div id="root"></div>
