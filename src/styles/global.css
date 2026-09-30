@@ -947,6 +947,16 @@ tr.arriving {
   font-size: var(--text-sm);
 }
 
+.stale-banner__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.stale-banner__retry {
+  margin-left: auto;
+  flex: none;
+}
+
 /* ---------- Drawer ---------- */
 .drawer-overlay {
   position: fixed;
@@ -1189,6 +1199,17 @@ tr.arriving {
 @media (prefers-reduced-motion: reduce) {
   :root[data-theme="dark"] body::before {
     animation: none;
+  }
+  .is-in .heart-leader {
+    animation: none;
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
+  .heart-anchor__pop,
+  .heart-badge__card {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
   .skeleton,
   tr.arriving,

@@ -220,9 +220,24 @@ export default function QueueBoard({ initialQueue = "general" }: QueueBoardProps
           ) : (
             <>
               {query.isError && (
-                <div className="stale-banner" role="status">
+                <div
+                  className="stale-banner"
+                  role="status"
+                  title={query.error instanceof Error ? query.error.message : String(query.error)}
+                >
                   <WarningCircle size={14} weight="bold" aria-hidden="true" />
-                  <span>Live updates paused … showing the last known queue. Retrying…</span>
+                  <span className="stale-banner__text">
+                    Can&rsquo;t reach the queue right now. Showing the last saved update.
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="stale-banner__retry"
+                    onClick={() => void query.refetch()}
+                    loading={query.isFetching}
+                  >
+                    Retry now
+                  </Button>
                 </div>
               )}
               <QueueTable
