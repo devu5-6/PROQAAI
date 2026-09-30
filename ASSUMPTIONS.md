@@ -30,6 +30,7 @@ The brief leaves a number of things open. Each ambiguity below is listed with th
 |---|---|---|---|
 | 13 | "MSW **or something similar**" | MSW v2 (browser worker in dev/preview, node server in tests). | Company preference; if a real API exists, MSW handlers mirror its contract. |
 | 14 | "Roughly 10% random failure" — which endpoints? | Applied to GET (refetch survives, retry=1) and all mutations (optimistic rollback + toast). Header overrides (`x-force-success/failure`) for deterministic tests. | Whether GETs failing 10% of the time is realistic or should be mutations-only. |
+| 19 | 10% failures make demos and screenshots noisy. | Kept the brief's 10% as the default and added `VITE_MOCK_FAILURE_RATE=0` as an opt-in override for demos, so the spec default and a clean demo can both be had without a code change. | Whether the reviewers want failures visible during the live session. |
 | 15 | Browser support target. | Evergreen browsers; ES2022 output; no IE11. | If the clinic runs kiosk-mode browsers on old machines. |
 | 16 | State management "any approach, justify it." | TanStack Query for server state; `useState` for the three pieces of true UI state. Justified in README. | Team standards. |
 | 17 | Deployment target ("deployed link is a plus"). | Static SPA build (`dist/`), Vercel/Netlify-compatible; MSW worker is committed under `public/` so the deployed demo is fully interactive. | Whether a real backend will replace mocks before review. |

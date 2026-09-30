@@ -20,7 +20,7 @@ npm run build:app  # typecheck + production build
 npm run storybook  # component workshop + a11y addon
 ```
 
-The mock API (MSW) is enabled automatically in dev. It simulates 350–900 ms latency and a **~10% random failure rate** — you will see real error toasts and rollbacks. Force deterministic outcomes with headers `x-force-failure: 1` / `x-force-success: 1` (used by tests; see `src/mocks/handlers.ts`).
+The mock API (MSW) is enabled automatically in dev. It simulates 350–900 ms latency and a **~10% random failure rate** — you will see real error toasts and rollbacks. Force deterministic outcomes with headers `x-force-failure: 1` / `x-force-success: 1` (used by tests; see `src/mocks/handlers.ts`). For a demo or screenshot session that needs a quiet server, set `VITE_MOCK_FAILURE_RATE=0` in `.env.local`; the default stays at the brief's 10%.
 
 ## What's inside
 

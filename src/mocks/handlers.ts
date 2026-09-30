@@ -11,7 +11,23 @@ const db: Record<QueueId, QueueSnapshot> = seedAllQueues();
 
 const LATENCY_MIN = 350;
 const LATENCY_MAX = 900;
-const FAILURE_RATE = 0.1; // ~10% random failures, per the brief
+/**
+ * ~10% random failures, per the brief. A demo or screenshot session can
+ * quiet the server with VITE_MOCK_FAILURE_RATE=0 without editing code;
+ * anything unparseable or out of range falls back to the brief's value.
+ * The per-request x-force-success / x-force-failure headers still win.
+ */
+const DEFAULT_FAILURE_RATE = 0.1;
+
+function resolveFailureRate(): number {
+  const raw = import.meta.env.VITE_MOCK_FAILURE_RATE;
+  if (raw === undefined || raw === "") return DEFAULT_FAILURE_RATE;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 1) return DEFAULT_FAILURE_RATE;
+  return parsed;
+}
+
+const FAILURE_RATE = resolveFailureRate();
 
 function jitteredDelay(): Promise<void> {
   const ms = LATENCY_MIN + Math.random() * (LATENCY_MAX - LATENCY_MIN);
