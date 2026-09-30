@@ -169,6 +169,8 @@ interface RowProps {
   recentArrivals: Set<string>;
   now: number;
   visibleColumns: ColumnId[];
+  /** Columns the user explicitly enabled; these never auto-hide on tablet. */
+  userColumns: Set<ColumnId>;
 }
 
 const Row = memo(function Row({
@@ -180,29 +182,33 @@ const Row = memo(function Row({
   recentArrivals,
   now,
   visibleColumns,
+  userColumns,
 }: RowProps) {
   return (
     <tr
       className={`${selectedId === c.id ? "selected" : ""} ${recentArrivals.has(c.id) ? "arriving" : ""}`}
       aria-selected={selectedId === c.id}
     >
-      {visibleColumns.map((col) => (
-        <td
-          key={col}
-          className={
-            ALL_COLUMNS.find((x) => x.id === col)?.hideOnTablet ? "hide-tablet" : undefined
-          }
-        >
-          <Cell
-            col={col}
-            c={c}
-            queueId={queueId}
-            onSelect={() => onSelect(c)}
-            actions={actions}
-            now={now}
-          />
-        </td>
-      ))}
+      {visibleColumns.map((col) => {
+        const meta = ALL_COLUMNS.find((x) => x.id === col);
+        return (
+          <td
+            key={col}
+            className={
+              meta?.hideOnTablet && !userColumns.has(col) ? "hide-tablet" : undefined
+            }
+          >
+            <Cell
+              col={col}
+              c={c}
+              queueId={queueId}
+              onSelect={() => onSelect(c)}
+              actions={actions}
+              now={now}
+            />
+          </td>
+        );
+      })}
     </tr>
   );
 });
@@ -216,6 +222,7 @@ interface QueueTableProps {
   recentArrivals: Set<string>;
   now: number;
   visibleColumns: ColumnId[];
+  userColumns: Set<ColumnId>;
 }
 
 export function QueueTable({
@@ -227,6 +234,7 @@ export function QueueTable({
   recentArrivals,
   now,
   visibleColumns,
+  userColumns,
 }: QueueTableProps) {
   return (
     <div className="table-scroll" tabIndex={0} aria-label="Queue table scroll area">
@@ -243,7 +251,9 @@ export function QueueTable({
                 <th
                   key={col}
                   scope="col"
-                  className={meta?.hideOnTablet ? "hide-tablet" : undefined}
+                  className={
+                    meta?.hideOnTablet && !userColumns.has(col) ? "hide-tablet" : undefined
+                  }
                 >
                   {meta?.label}
                 </th>
@@ -263,6 +273,7 @@ export function QueueTable({
               recentArrivals={recentArrivals}
               now={now}
               visibleColumns={visibleColumns}
+              userColumns={userColumns}
             />
           ))}
         </tbody>

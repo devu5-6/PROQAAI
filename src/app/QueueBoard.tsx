@@ -40,6 +40,10 @@ export default function QueueBoard({ initialQueue = "general" }: QueueBoardProps
   const [queueId, setQueueId] = useState<QueueId>(initialQueue);
   const [selected, setSelected] = useState<Customer | null>(null);
   const [visibleColumns, setVisibleColumns] = useState<ColumnId[]>(DEFAULT_COLUMNS);
+  // Columns the user switched on by hand. They must survive the tablet
+  // auto-hide ("hide-tablet"), otherwise checking a box would appear to do
+  // nothing on ≤900px screens and the picker would look broken.
+  const [userColumns, setUserColumns] = useState<Set<ColumnId>>(() => new Set());
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -92,6 +96,17 @@ export default function QueueBoard({ initialQueue = "general" }: QueueBoardProps
   }
 
   function toggleColumn(id: ColumnId) {
+    // Track explicit user choices so they survive the tablet auto-hide:
+    // a column the user added must stay visible even on ≤900px screens.
+    setUserColumns((prev) => {
+      const next = new Set(prev);
+      if (visibleColumns.includes(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
     setVisibleColumns((prev) => {
       if (prev.includes(id)) {
         if (PROTECTED_COLUMNS.includes(id)) return prev;
@@ -251,6 +266,7 @@ export default function QueueBoard({ initialQueue = "general" }: QueueBoardProps
                 recentArrivals={recent}
                 now={now}
                 visibleColumns={visibleColumns}
+                userColumns={userColumns}
               />
             </>
           )}
