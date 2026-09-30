@@ -80,13 +80,10 @@ Run with `npm test`. The MSW node server backs the component tests with the same
 
 ## Deployment (Vercel)
 
-The app is a standard Vite SPA; the mock worker ships in `public/` so the deployed site is fully functional:
-
+The app is a standard Vite SPA
 ```bash
-npm i -g vercel && vercel        # framework: Vite, build: npm run build:app, output: dist
+https://clinic-dashboard-zeta-liart.vercel.app/
 ```
-
-(Or Netlify: build `npm run build:app`, publish `dist`.)
 
 ## Repo map
 
