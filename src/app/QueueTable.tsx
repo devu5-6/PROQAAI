@@ -2,7 +2,7 @@ import { memo } from "react";
 import type { Customer, QueueId } from "@/types";
 import { QUEUES } from "@/lib/constants";
 import { formatWait, waitInfo } from "@/lib/wait";
-import { Badge } from "@/components";
+import { Badge, SelectCaret } from "@/components";
 import { Button } from "@/components/Button";
 import { Warning, Alarm } from "@phosphor-icons/react";
 import type { QueueActions } from "./use-queue-actions";
@@ -132,24 +132,27 @@ function Cell({ col, c, queueId, onSelect, actions, now }: CellProps) {
           >
             No-show
           </Button>
-          <select
-            className="select"
-            defaultValue=""
-            aria-label={`Move ${c.name} to another queue`}
-            onChange={(e) => {
-              const to = e.target.value as QueueId;
-              e.target.value = "";
-              if (!to) return;
-              void actions.move.mutateAsync({ customerId: c.id, to }).catch(() => undefined);
-            }}
-          >
-            <option value="">Move to...</option>
-            {QUEUES.filter((q) => q.id !== queueId).map((q) => (
-              <option key={q.id} value={q.id}>
-                {q.name}
-              </option>
-            ))}
-          </select>
+          <span className="select-control">
+            <select
+              className="select"
+              defaultValue=""
+              aria-label={`Move ${c.name} to another queue`}
+              onChange={(e) => {
+                const to = e.target.value as QueueId;
+                e.target.value = "";
+                if (!to) return;
+                void actions.move.mutateAsync({ customerId: c.id, to }).catch(() => undefined);
+              }}
+            >
+              <option value="">Move to...</option>
+              {QUEUES.filter((q) => q.id !== queueId).map((q) => (
+                <option key={q.id} value={q.id}>
+                  {q.name}
+                </option>
+              ))}
+            </select>
+            <SelectCaret />
+          </span>
         </div>
       );
     default:

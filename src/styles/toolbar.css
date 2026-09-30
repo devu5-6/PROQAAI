@@ -8,6 +8,11 @@
   list-style: none;
 }
 
+/* Caret flips while the panel is open, matching the select's dropdown. */
+.column-picker[open] summary .caret {
+  transform: rotate(180deg);
+}
+
 .column-picker summary::-webkit-details-marker {
   display: none;
 }

@@ -14,7 +14,7 @@ import { HeartModel } from "./HeartModel";
 import { Topbar } from "./Topbar";
 import { formatWait } from "@/lib/wait";
 import { Button, EmptyState, ErrorState, Select, SkeletonRows } from "@/components";
-import { WarningCircle, Warning, Tray } from "@phosphor-icons/react";
+import { WarningCircle, Warning, Tray, CaretDownIcon } from "@phosphor-icons/react";
 
 const DEFAULT_COLUMNS: ColumnId[] = [
   "position",
@@ -104,7 +104,9 @@ export default function QueueBoard({ initialQueue = "general" }: QueueBoardProps
 
   const columnPicker = (
     <details className="column-picker">
-      <summary className="btn btn--secondary btn--sm">Columns ▾</summary>
+      <summary className="btn btn--secondary btn--sm">
+        Filter <CaretDownIcon className="caret" size={15} />
+      </summary>
       <div className="column-picker-menu" role="group" aria-label="Visible columns">
         {ALL_COLUMNS.filter((c) => c.id !== "actions").map((col) => (
           <label key={col.id} className="column-picker-item">

@@ -1,7 +1,7 @@
 import type { Customer, QueueId } from "@/types";
 import { QUEUES } from "@/lib/constants";
 import { formatWait, waitInfo } from "@/lib/wait";
-import { Badge, Button, Drawer } from "@/components";
+import { Badge, Button, Drawer, SelectCaret } from "@/components";
 import { X } from "@phosphor-icons/react";
 import type { QueueActions } from "./use-queue-actions";
 
@@ -119,25 +119,28 @@ export function CustomerPanel({ customer, queueId, onClose, actions }: CustomerP
               <label className="sr-only" htmlFor="panel-move">
                 Move {customer.name} to another queue
               </label>
-              <select
-                id="panel-move"
-                className="select"
-                defaultValue=""
-                aria-label={`Move ${customer.name} to another queue`}
-                onChange={(e) => {
-                  const to = e.target.value as QueueId;
-                  if (!to) return;
-                  actions.move.mutateAsync({ customerId: customer.id, to }).catch(() => undefined);
-                  onClose();
-                }}
-              >
-                <option value="">Move to…</option>
-                {QUEUES.filter((q) => q.id !== queueId).map((q) => (
-                  <option key={q.id} value={q.id}>
-                    Move to {q.name}
-                  </option>
-                ))}
-              </select>
+              <span className="select-control">
+                <select
+                  id="panel-move"
+                  className="select"
+                  defaultValue=""
+                  aria-label={`Move ${customer.name} to another queue`}
+                  onChange={(e) => {
+                    const to = e.target.value as QueueId;
+                    if (!to) return;
+                    actions.move.mutateAsync({ customerId: customer.id, to }).catch(() => undefined);
+                    onClose();
+                  }}
+                >
+                  <option value="">Move to…</option>
+                  {QUEUES.filter((q) => q.id !== queueId).map((q) => (
+                    <option key={q.id} value={q.id}>
+                      Move to {q.name}
+                    </option>
+                  ))}
+                </select>
+                <SelectCaret />
+              </span>
             </div>
           </div>
         </>

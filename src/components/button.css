@@ -101,21 +101,54 @@
   }
 }
 
-/* Select */
+/* Select: same box as .btn--sm, with the same shared caret as the
+   Filter button. The native chevron is suppressed so both dropdowns
+   in the toolbar read as one control family. */
+.select-control {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
 .select {
-  min-height: 34px;
-  padding: 0 var(--space-3);
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 32px;
+  padding: 0 calc(var(--space-3) * 2 + 15px) 0 var(--space-3);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-strong);
   background: var(--surface);
   color: var(--text);
   font: inherit;
   font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
   box-shadow: var(--shadow-1);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 }
 
 .select:hover {
   background: var(--gray-50);
+}
+
+.select-caret,
+.caret {
+  color: var(--text-2);
+  flex: none;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.select-caret {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 /* Name-as-link inside the table */
