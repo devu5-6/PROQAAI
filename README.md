@@ -6,7 +6,8 @@ Front-desk staff manage a waiting queue on a desktop or tablet. They are constan
 
 ## Live demo & repo
 
-- **Deployed app:** _(see Deployment section — `npm run build:app` produces a static `dist/`)_
+- **Repo:** https://github.com/devu5-6/PROQAAI
+- **Deployed app:** _(optional — see Deployment below; `VITE_ENABLE_MOCKS=true` is required)_
 - **Storybook:** `npm run storybook` → http://localhost:6006
 
 ## Quick start
@@ -21,6 +22,19 @@ npm run storybook  # component workshop + a11y addon
 ```
 
 The mock API (MSW) is enabled automatically in dev. It simulates 350–900 ms latency and a **~10% random failure rate** — you will see real error toasts and rollbacks. Force deterministic outcomes with headers `x-force-failure: 1` / `x-force-success: 1` (used by tests; see `src/mocks/handlers.ts`). For a demo or screenshot session that needs a quiet server, set `VITE_MOCK_FAILURE_RATE=0` in `.env.local`; the default stays at the brief's 10%.
+
+## Deployment
+
+There is no backend in this repository, so a deployed copy needs the mock service worker switched on. `Vite` sets `MODE=production` on a deploy, and `src/main.tsx` only starts MSW when the mode is **not** production — or when `VITE_ENABLE_MOCKS=true`:
+
+```bash
+# Vercel / Netlify: add this under Project Settings → Environment Variables
+VITE_ENABLE_MOCKS=true
+```
+
+Without it the build is fine but the board shows "Could not load the queue", because every `/api` request falls through to the static host's 404. Set the variable **before** the deploy, and rebuild — it is baked in at build time, not read at runtime.
+
+The worker script itself (`public/mockServiceWorker.js`) is committed, and the SPA needs no rewrite rules: MSW answers `/api` in the browser before any request reaches the host. `npm run build:app` produces a static `dist/` that can be served from any static host.
 
 ## What's inside
 
