@@ -488,6 +488,174 @@ body::before {
   }
 }
 
+/* ---------- Heart callouts ---------- */
+.heart-badges {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.heart-leaders {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.heart-anchor-group {
+  transition: opacity 200ms var(--ease-out);
+}
+
+.heart-anchor-group.is-off {
+  opacity: 0;
+}
+
+.heart-leader {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.9);
+  stroke-width: 1;
+}
+
+.heart-anchor__ring {
+  fill: rgb(255 255 255 / 0.28);
+}
+
+.heart-anchor__core {
+  fill: #ffffff;
+}
+
+/* Stage 1: the dot scales and fades in on its anchor. */
+.heart-anchor__pop {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0);
+  opacity: 0;
+}
+
+/* Stage 2: the leader line draws from the card towards the dot.
+   pathLength="1" normalises the dash maths, so the fixed dashoffset
+   works even though the path is rebuilt every frame. */
+.is-in .heart-leader {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: heart-line-draw
+    420ms var(--ease-out)
+    calc(var(--i, 0) * 340ms + 190ms)
+    both;
+}
+
+@keyframes heart-line-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.is-in .heart-anchor__pop {
+  animation: heart-dot-in
+    240ms var(--ease-out)
+    calc(var(--i, 0) * 340ms)
+    both;
+}
+
+@keyframes heart-dot-in {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.heart-badge {
+  position: absolute;
+  width: 122px;
+  transition: opacity 200ms var(--ease-out);
+}
+
+.heart-badge.is-off {
+  opacity: 0;
+}
+
+.heart-badge--left {
+  left: 0;
+}
+
+.heart-badge--right {
+  right: 0;
+}
+
+/* Stage 3: the card pops in with a spring-like overshoot. */
+.heart-badge__card {
+  padding: 7px 10px 8px;
+  border-radius: var(--radius-lg);
+  background: rgb(255 255 255 / 0.82);
+  border: 1px solid rgb(255 255 255 / 0.9);
+  box-shadow: 0 10px 24px rgb(11 18 32 / 0.16);
+  backdrop-filter: blur(6px);
+  text-align: center;
+  transform: scale(0);
+  opacity: 0;
+}
+
+.is-in .heart-badge__card {
+  animation: heart-card-in
+    520ms cubic-bezier(0.34, 1.56, 0.64, 1)
+    calc(var(--i, 0) * 340ms + 320ms)
+    both;
+}
+
+@keyframes heart-card-in {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.heart-badge__title {
+  display: block;
+  font-size: 0.625rem;
+  line-height: 1.25;
+  color: #8b93a3;
+}
+
+.heart-badge__value {
+  display: block;
+  margin-top: 2px;
+  font-size: 1.25rem;
+  line-height: 1.1;
+  font-weight: var(--weight-semibold);
+  color: #0b1220;
+  font-variant-numeric: tabular-nums;
+}
+
+.heart-badge__unit {
+  display: inline-block;
+  margin-left: 0.12em;
+  font-size: 0.625rem;
+  line-height: 1.2;
+  color: #8b93a3;
+  vertical-align: 0.12em;
+}
+
+.heart-badge__code {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.625rem;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  color: #8b93a3;
+}
+
 /* ---------- Heart + gauges row ---------- */
 .heart-row {
   display: grid;

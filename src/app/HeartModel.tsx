@@ -1,5 +1,76 @@
 import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import type * as ThreeNS from "three";
+
+type BadgeSpec = {
+  id: string;
+  title: string;
+  value: string;
+  unit: string;
+  /** Short code shown on the badge's third line. */
+  code: string;
+  side: "left" | "right";
+  /** Vertical slot in the stage, 0-1. */
+  top: number;
+  /** Direction from the heart's centre towards the anatomy, in model space. */
+  dir: [number, number, number];
+};
+
+const BADGES: BadgeSpec[] = [
+  {
+    id: "spo2",
+    title: "Oxygen Saturation",
+    value: "97",
+    unit: "%",
+    code: "SpO2",
+    side: "right",
+    top: 0.35,
+    dir: [0.72, 0.55, 0.4],
+  },
+  {
+    id: "hr",
+    title: "Heart Rate",
+    value: "72",
+    unit: "bpm",
+    code: "HR",
+    side: "left",
+    top: 0.06,
+    dir: [-0.9, 0.42, 0.25],
+  },
+  // {
+  //   id: "bp",
+  //   title: "Blood Pressure",
+  //   value: "118/76",
+  //   unit: "mmHg",
+  //   code: "BP",
+  //   side: "right",
+  //   top: 0.64,
+  //   dir: [0.55, -0.6, 0.5],
+  // },
+  {
+    id: "co",
+    title: "Cardiac Output",
+    value: "5.2",
+    unit: "L/min",
+    code: "CO",
+    side: "left",
+    top: 0.74,
+    dir: [-0.6, -0.62, 1.5],
+  },
+];
+
+type BadgeRuntime = {
+  spec: BadgeSpec;
+  /** Anchor in model space, on the surface. */
+  local: ThreeNS.Vector3;
+  /** Anchor in world space, refreshed each frame. */
+  world: ThreeNS.Vector3;
+  badgeEl: HTMLDivElement | null;
+  groupEl: SVGGElement | null;
+  lineEl: SVGPathElement | null;
+  dotEl: SVGGElement | null;
+  rect: { x: number; y: number; w: number; h: number } | null;
+};
 
 /**
  * Beating 3D heart.
@@ -720,6 +791,56 @@ export function HeartModel() {
 
         scene.add(heart);
 
+        // ------------------------------------------------------------
+        // Floating callouts
+        // ------------------------------------------------------------
+
+        // Bake every callout onto the geometry: cast a ray from outside
+        // the model towards its centre along the wanted anatomical
+        // direction and keep the surface hit in model space. Stored in
+        // model space so the dot tracks the anatomy through the sway
+        // and the heartbeat instead of floating free.
+
+        const raycaster = new THREE.Raycaster();
+
+        const fitScale = root.scale.x;
+
+        const badges: BadgeRuntime[] = BADGES.map((spec) => {
+          const dir = new THREE.Vector3(...spec.dir).normalize();
+
+          // Bake against an unrotated heart so the direction maps to a
+          // fixed part of the anatomy.
+          heart.rotation.set(0, 0, 0);
+          heart.scale.setScalar(1);
+          heart.updateMatrixWorld(true);
+
+          raycaster.set(
+            dir.clone().multiplyScalar(8),
+            dir.clone().negate()
+          );
+
+          const hit = raycaster.intersectObject(root, true)[0];
+
+          const local = hit
+            ? root.worldToLocal(hit.point.clone())
+            : center
+                .clone()
+                .add(dir.multiplyScalar(size.length() / 2));
+
+          return {
+            spec,
+            local,
+            world: new THREE.Vector3(),
+            badgeEl: null,
+            groupEl: null,
+            lineEl: null,
+            dotEl: null,
+            rect: null,
+          };
+        });
+
+        heart.rotation.y = 0.5;
+
         setState("ready");
 
         // ------------------------------------------------------------
@@ -802,6 +923,150 @@ export function HeartModel() {
         };
 
         // ------------------------------------------------------------
+        // Callout DOM
+        // ------------------------------------------------------------
+
+        // The overlay only exists once React has rendered the ready
+        // state, so bind on the first frame that finds it.
+        const bindBadges = () => {
+          if (badges.every((b) => b.badgeEl)) {
+            return;
+          }
+
+          const stage = mount.parentElement;
+
+          if (!stage) {
+            return;
+          }
+
+          for (const b of badges) {
+            if (b.badgeEl) {
+              continue;
+            }
+
+            b.badgeEl = stage.querySelector<HTMLDivElement>(
+              `.heart-badge[data-anchor="${b.spec.id}"]`
+            );
+
+            b.groupEl = stage.querySelector<SVGGElement>(
+              `.heart-anchor-group[data-anchor="${b.spec.id}"]`
+            );
+
+            b.lineEl =
+              b.groupEl?.querySelector("path") ?? null;
+
+            b.dotEl =
+              b.groupEl?.querySelector(".heart-anchor") ?? null;
+
+            if (b.badgeEl) {
+              measureBadges();
+
+              // Flip on the staged entry: dot, then leader line,
+              // then the card. CSS owns every animated property from
+              // here, so nothing imperative may touch them again.
+              b.badgeEl.classList.add("is-in");
+              b.groupEl?.classList.add("is-in");
+            }
+          }
+        };
+
+        // Badges live in fixed slots, so their offset boxes only need
+        // measuring once and again whenever the stage resizes.
+        const measureBadges = () => {
+          for (const b of badges) {
+            if (!b.badgeEl) {
+              continue;
+            }
+
+            b.rect = {
+              x: b.badgeEl.offsetLeft,
+              y: b.badgeEl.offsetTop,
+              w: b.badgeEl.offsetWidth,
+              h: b.badgeEl.offsetHeight,
+            };
+          }
+        };
+
+        const UP = new THREE.Vector3(0, 1, 0);
+
+        const scratchProj = new THREE.Vector3();
+
+        const syncBadges = () => {
+          bindBadges();
+
+          const w = mount.clientWidth;
+          const h = mount.clientHeight;
+
+          for (const b of badges) {
+            // Model space -> world: fit scale, then the group offset,
+            // the heartbeat expansion, then the sway.
+            b.world
+              .copy(b.local)
+              .multiplyScalar(fitScale)
+              .add(root.position)
+              .multiplyScalar(heart.scale.x)
+              .applyAxisAngle(
+                UP,
+                heart.rotation.y
+              );
+
+            // Callouts stay pinned to their anchor for the whole sway:
+            // no facing test, so rotating a side away never blanks it.
+            scratchProj
+              .copy(b.world)
+              .project(camera);
+
+            const x = (scratchProj.x * 0.5 + 0.5) * w;
+            const y = (-scratchProj.y * 0.5 + 0.5) * h;
+
+            if (!b.dotEl || !b.lineEl || !b.badgeEl || !b.rect) {
+              continue;
+            }
+
+            const onScreen =
+              x > -24 &&
+              x < w + 24 &&
+              y > -24 &&
+              y < h + 24;
+
+            b.groupEl?.classList.toggle(
+              "is-off",
+              !onScreen
+            );
+
+            b.badgeEl.classList.toggle(
+              "is-off",
+              !onScreen
+            );
+
+            if (!onScreen) {
+              continue;
+            }
+
+            // Leader line leaves from the badge edge nearest the dot.
+            const left = Math.min(
+              Math.max(x, b.rect.x),
+              b.rect.x + b.rect.w
+            );
+
+            const top = Math.min(
+              Math.max(y, b.rect.y),
+              b.rect.y + b.rect.h
+            );
+
+            b.lineEl.setAttribute(
+              "d",
+              `M ${left} ${top} L ${x} ${y}`
+            );
+
+            b.dotEl.setAttribute(
+              "transform",
+              `translate(${x} ${y})`
+            );
+          }
+        };
+
+        // ------------------------------------------------------------
         // Render one frame
         // ------------------------------------------------------------
 
@@ -836,6 +1101,8 @@ export function HeartModel() {
           heart.scale.setScalar(
             1 + b
           );
+
+          syncBadges();
 
           // Pulse internal glow.
           glowUniform.value =
@@ -904,12 +1171,15 @@ export function HeartModel() {
         const io =
           new IntersectionObserver(
             (entries) => {
-              entries.some(
+              const visible = entries.some(
                 (entry) =>
                   entry.isIntersecting
-              )
-                ? start()
-                : stop();
+              );
+              if (visible) {
+                start();
+              } else {
+                stop();
+              }
             },
             {
               threshold: 0.05,
@@ -941,6 +1211,8 @@ export function HeartModel() {
             w,
             h
           );
+
+          measureBadges();
         };
 
         const ro =
@@ -1117,6 +1389,72 @@ export function HeartModel() {
         ref={mountRef}
         data-state={state}
       />
+
+      {state === "ready" && (
+        <div className="heart-badges">
+          <svg
+            className="heart-leaders"
+            aria-hidden="true"
+          >
+            {BADGES.map((b, i) => (
+              <g
+                key={b.id}
+                className="heart-anchor-group"
+                data-anchor={b.id}
+                style={
+                  { "--i": i } as CSSProperties
+                }
+              >
+                <path
+                  className="heart-leader"
+                  pathLength={1}
+                />
+                <g className="heart-anchor">
+                  <g className="heart-anchor__pop">
+                    <circle
+                      className="heart-anchor__ring"
+                      r={5.5}
+                    />
+                    <circle
+                      className="heart-anchor__core"
+                      r={2.2}
+                    />
+                  </g>
+                </g>
+              </g>
+            ))}
+          </svg>
+
+          {BADGES.map((b, i) => (
+            <div
+              key={b.id}
+              className={`heart-badge heart-badge--${b.side}`}
+              data-anchor={b.id}
+              style={
+                {
+                  top: `${b.top * 100}%`,
+                  "--i": i,
+                } as CSSProperties
+              }
+            >
+              <div className="heart-badge__card">
+                <span className="heart-badge__title">
+                  {b.title}
+                </span>
+                <span className="heart-badge__value">
+                  {b.value}
+                  <span className="heart-badge__unit">
+                    {b.unit}
+                  </span>
+                </span>
+                <span className="heart-badge__code">
+                  {b.code}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {state !== "ready" && (
         <div
