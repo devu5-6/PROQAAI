@@ -127,7 +127,8 @@ export function HeartModel() {
 
         renderer.setSize(
           mount.clientWidth,
-          mount.clientHeight
+          mount.clientHeight,
+          false
         );
 
         renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -148,7 +149,7 @@ export function HeartModel() {
           100
         );
 
-        camera.position.set(0, 0, 9);
+        camera.position.set(0, 0, 11);
 
         // ------------------------------------------------------------
         // Lighting
@@ -223,7 +224,7 @@ export function HeartModel() {
         const maxDim =
           Math.max(size.x, size.y, size.z) || 1;
 
-        const scale = 5.2 / maxDim;
+        const scale = 6.0 / maxDim;
 
         root.scale.setScalar(scale);
 
@@ -1207,9 +1208,15 @@ export function HeartModel() {
 
           camera.updateProjectionMatrix();
 
+          // updateStyle=false: the canvas display size is owned by CSS
+          // (width/height 100%), so a missed resize tick can never leave a
+          // stale inline width overflowing the page. Only the drawing
+          // buffer is resized here; worst case is brief softness, not
+          // horizontal scroll.
           renderer.setSize(
             w,
-            h
+            h,
+            false
           );
 
           measureBadges();
