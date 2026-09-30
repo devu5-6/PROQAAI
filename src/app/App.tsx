@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import QueueBoard from "./QueueBoard";
-import { VortexBackground } from "./VortexBackground";
 import { ToastProvider } from "./toast-context";
 import "@/components/button.css";
 
@@ -17,7 +16,6 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
-        <VortexBackground />
         <a className="skip-link" href="#queue-main">
           Skip to queue board
         </a>

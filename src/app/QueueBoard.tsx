@@ -130,7 +130,7 @@ export default function QueueBoard({ initialQueue = "general" }: QueueBoardProps
 
         <section className="hero rise stagger-1" aria-label="Overview">
           <h2>
-            Medical
+            Patient
             <br />
             Dashboard
           </h2>
@@ -222,7 +222,7 @@ export default function QueueBoard({ initialQueue = "general" }: QueueBoardProps
               {query.isError && (
                 <div className="stale-banner" role="status">
                   <WarningCircle size={14} weight="bold" aria-hidden="true" />
-                  <span>Live updates paused — showing the last known queue. Retrying…</span>
+                  <span>Live updates paused … showing the last known queue. Retrying…</span>
                 </div>
               )}
               <QueueTable

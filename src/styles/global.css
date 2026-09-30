@@ -95,15 +95,29 @@ button {
   top: var(--space-3);
 }
 
-/* ---------- Vortex background canvas ---------- */
-.bg-vortex {
+/* ---------- Ambient background gradient ---------- */
+body::before {
+  content: "";
   position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100%;
   z-index: 0;
-  background: var(--bg);
-  transition: background 300ms var(--ease-out);
+  pointer-events: none;
+  background-image: var(--bg-image);
+}
+
+/* Dark mode only: let the wash drift through hues, slowly. */
+:root[data-theme="dark"] body::before {
+  filter: hue-rotate(0deg);
+  animation: aurora-hue 55s var(--ease-out) infinite alternate;
+}
+
+@keyframes aurora-hue {
+  from {
+    filter: hue-rotate(0deg) saturate(100%);
+  }
+  to {
+    filter: hue-rotate(28deg) saturate(118%);
+  }
 }
 
 /* ---------- App shell: floating sidebar + main column ---------- */
@@ -1005,6 +1019,9 @@ tr.arriving {
 
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
+  :root[data-theme="dark"] body::before {
+    animation: none;
+  }
   .skeleton,
   tr.arriving,
   .drawer,

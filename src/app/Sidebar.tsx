@@ -8,6 +8,7 @@ import {
   SignOut,
   Moon,
   Sun,
+  HeartbeatIcon,
 } from "@phosphor-icons/react";
 
 interface SidebarProps {
@@ -28,9 +29,7 @@ export function Sidebar({ theme, onToggleTheme }: SidebarProps) {
   return (
     <aside className="sidebar" aria-label="Primary">
       <div className="sidebar-brand" aria-hidden="true">
-        bio
-        <br />
-        track
+        <HeartbeatIcon size={32} />
       </div>
       <nav className="sidebar-nav" aria-label="Sections">
         {NAV_ITEMS.map((item, i) => (

@@ -44,8 +44,13 @@
   --focus: #4f7fc4;
   --focus-ring: rgb(79 127 196 / 0.35);
 
-  /* Vortex background strands: near-black in light mode. */
-  --vortex-streak: #0e131b;
+  /* App background wash, painted by the fixed body::before layer. */
+  --bg-image: linear-gradient(
+    to top,
+    #dad4ec 0%,
+    #dad4ec 1%,
+    #f3e7e9 100%
+  );
 
   /* Functional (status-only) */
   --ok: #2e9e6b;
@@ -164,8 +169,16 @@
   --focus: #7fb0e8;
   --focus-ring: rgb(127 176 232 / 0.4);
 
-  /* Vortex background strands: silver-blue in dark mode. */
-  --vortex-streak: #5f8ecf;
+  /* Dark wash: deep slate base with a slow blue ramp, top-left to
+     bottom-right. */
+  --bg-image: linear-gradient(
+    135deg,
+    transparent 40%,
+    rgb(30 64 175 / 0.34) 52%,
+    rgb(37 99 235 / 0.34) 66%,
+    rgb(14 165 233 / 0.24) 82%,
+    rgb(99 102 241 / 0.3) 100%
+  );
 
   --ok: #4ade80;
   --ok-soft: rgb(74 222 128 / 0.12);
