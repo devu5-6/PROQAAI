@@ -6,10 +6,7 @@ import type { Customer } from "@/types";
  * relative order via the stable sort, so equal timestamps never reshuffle
  * rows that the user is looking at.
  */
-export function reorderForRender(
-  customers: Customer[],
-  _now: number
-): Customer[] {
+export function reorderForRender(customers: Customer[]): Customer[] {
   const waiting: Customer[] = [];
   const called: Customer[] = [];
 

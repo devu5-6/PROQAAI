@@ -117,7 +117,7 @@ A queue board is ordered, dynamic data: a `<ul>`/`<ol>` (or a table) with an `ar
 ## Corrected version
 
 ```tsx
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface QueueEntry {
   id: string;
@@ -142,6 +142,7 @@ export default function QueueList({ locationId }: { locationId: string }) {
   const [callingNext, setCallingNext] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const [reloadToken, setReloadToken] = useState(0);
 
   // --- Data loading: cancellable, error-checked, keyed to locationId. ------
   const loadQueue = useCallback(
@@ -183,7 +184,7 @@ export default function QueueList({ locationId }: { locationId: string }) {
       window.clearInterval(interval);
       window.clearInterval(clock);
     };
-  }, [loadQueue]);                 // re-runs (and resets polling) when locationId changes
+  }, [loadQueue, reloadToken]);      // re-runs on locationId change *and* on Retry
 
   // --- Optimistic call-next with rollback and feedback. --------------------
   const handleCallNext = useCallback(async () => {
@@ -192,6 +193,8 @@ export default function QueueList({ locationId }: { locationId: string }) {
 
     const previous = entries;                              // snapshot for rollback
     setEntries(entries.map((e) => (e.id === head.id ? { ...e, status: "called" } : e)));
+    setCallingNext(true);                                  // pending state, disables the button
+    setFeedback(null);
 
     try {
       const res = await fetch(`/api/queue/${head.id}/call`, { method: "POST" });
@@ -200,6 +203,8 @@ export default function QueueList({ locationId }: { locationId: string }) {
     } catch {
       setEntries(previous);                                // roll the lie back
       setFeedback(`Could not call ${head.name} — the change was rolled back. Please retry.`);
+    } finally {
+      setCallingNext(false);
     }
   }, [entries]);
 
@@ -215,7 +220,15 @@ export default function QueueList({ locationId }: { locationId: string }) {
       {state === "error" && (
         <div role="alert">
           <p>We couldn't load the queue.</p>
-          <button type="button" onClick={() => setState("loading")}>Retry</button>
+          <button
+            type="button"
+            onClick={() => {
+              setState("loading");
+              setReloadToken((n) => n + 1);   // refetch now, not on the next 3 s tick
+            }}
+          >
+            Retry
+          </button>
         </div>
       )}
 
@@ -257,8 +270,8 @@ export default function QueueList({ locationId }: { locationId: string }) {
 |---|---|
 | C1 leaked interval / stale locationId | cleanup + `controller.abort()` + `[loadQueue]` dependency (re-polls per location) |
 | C2 mutation + crash on empty | `map` to new objects; `find`-guard; button `disabled` when no waiting head |
-| C3 optimistic w/o rollback | snapshot → restore on failure → explicit `role="status"` feedback naming the customer |
-| C4 no error handling | `res.ok` check, try/catch, distinct `error` state with Retry |
+| C3 optimistic w/o rollback | snapshot → restore on failure → explicit `role="status"` feedback naming the customer, plus a real `callingNext` pending state that disables the button mid-flight |
+| C4 no error handling | `res.ok` check, try/catch, distinct `error` state whose Retry refetches immediately via `reloadToken` |
 | H5 index keys | `key={e.id}` |
 | H6 div-button | real `<button>` |
 | H7 color-only | token classes + ⚠ icon + sr-only text label |

@@ -58,8 +58,8 @@ export default function QueueBoard({ initialQueue = "general" }: QueueBoardProps
 
   const customers = query.data?.customers;
   const ordered = useMemo(
-    () => (customers ? reorderForRender(customers, now) : []),
-    [customers, now]
+    () => (customers ? reorderForRender(customers) : []),
+    [customers]
   );
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();

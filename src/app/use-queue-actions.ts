@@ -75,7 +75,7 @@ export function useQueueActions(queueId: QueueId) {
   });
 
   /** Serve / no-show share one shape: the customer leaves the board. */
-  const makeLeaveMutation = (
+  const useLeaveMutation = (
     kind: "serve" | "no_show",
     messages: { success: string; error: string }
   ) =>
@@ -107,12 +107,12 @@ export function useQueueActions(queueId: QueueId) {
       },
     });
 
-  const serve = makeLeaveMutation("serve", {
+  const serve = useLeaveMutation("serve", {
     success: "marked as served.",
     error: "could not mark served.",
   });
 
-  const noShow = makeLeaveMutation("no_show", {
+  const noShow = useLeaveMutation("no_show", {
     success: "marked as no-show.",
     error: "could not mark no-show.",
   });

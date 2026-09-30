@@ -38,7 +38,7 @@ At each step the loop was: **direct → read the diff → run typecheck/tests �
 
 1. **Route collision in my MSW handlers.** The generic `:action` route was declared before the `/move` route, so every move was captured and rejected with `Unsupported action: move`. Found only by clicking the real UI; fixed by declaring the specific route first.
 2. **Missing rollback in `callNext`.** First version showed the error toast but never restored the cached snapshot — the queue stayed wrong after a rejected call-next. Caught on re-read of the diff; fixed by restoring the `previous` snapshot in `onError`.
-3. **A fake "hook factory".** The first hooks draft defined `makeLeaveMutation()` calling `useMutation` inside a plain function — a rules-of-hooks violation that *happened* to work because it always ran in the same order. Rewritten as three explicit `useMutation` calls.
+3. **A fake "hook factory".** The first hooks draft defined `makeLeaveMutation()` calling `useMutation` inside a plain function — a rules-of-hooks violation that *happened* to work because it always ran in the same order. Fixed by renaming it `useLeaveMutation` (`src/app/use-queue-actions.ts:78`): the name now states that it is a hook, so `useMutation` is reached from a hook body and always called at the top level of `useQueueActions`. The dedup is kept — the two leave actions genuinely differ only by a string.
 4. **Serve/no-show success handler patched the wrong snapshot** (restored the *pre-mutation* cache on success, undoing the optimistic update visually until the next poll).
 5. **Un-realistic mock data** — wait times were random per customer, so position #3 had waited longer than #1. Re-seeded so wait time decreases with position (FIFO-coherent).
 6. **Numerous tool-transport glitches** (corrupted file writes) that produced silently broken files; caught by re-reading every file after writing it.
@@ -75,7 +75,7 @@ const serve = useMutation({
 ### Final version (from `src/app/use-queue-actions.ts`)
 
 ```tsx
-const makeLeaveMutation = (
+const useLeaveMutation = (
   kind: "serve" | "no_show",
   messages: { success: string; error: string }
 ) =>
@@ -107,7 +107,7 @@ const makeLeaveMutation = (
     },
   });
 
-const serve = makeLeaveMutation("serve", {
+const serve = useLeaveMutation("serve", {
   success: "marked as served.",
   error: "could not mark served.",
 });
@@ -120,6 +120,6 @@ const serve = makeLeaveMutation("serve", {
 3. **Real rollback + human message.** Raw: `context.previous` restored but the toast said "Something went wrong" — useless mid-conversation. Final: the customer's *name*, what failed, and that the change was rolled back, e.g. *"Grace Vogel: could not mark served. Change was rolled back — please retry."* A staffer must know **what** to retry.
 4. **Shared `removeFromSnapshot` renumbers positions.** The raw filter left `position` values with a hole (1,2,4…), contradicting the "#1 is next" mental model everywhere else in the UI.
 5. **Structured mutation context (`{ previous, name }`)** instead of relying on closure captures — keeps rollback correct even if two mutations race.
-6. **No fake hook factory.** An earlier AI draft invoked `useMutation` inside a plain helper function; legal-looking, but a rules-of-hooks violation waiting for the first conditional. The final shape calls `useMutation` unconditionally at hook top level.
+6. **A hook factory that is honestly named as one.** An earlier AI draft invoked `useMutation` inside a plain helper; legal-looking, but a rules-of-hooks violation waiting for the first conditional. The final shape is `useLeaveMutation` — a real hook, called unconditionally at hook top level, and named to match the convention ESLint enforces.
 
 (The Part B PR review — where these same instincts are applied to an unfamiliar component — is in `REVIEW.md`.)
