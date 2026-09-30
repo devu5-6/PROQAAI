@@ -1046,7 +1046,7 @@ tr.arriving {
 /* ---------- Toasts ---------- */
 .toast-region {
   position: fixed;
-  bottom: var(--space-5);
+  top: var(--space-5);
   left: 50%;
   transform: translateX(-50%);
   z-index: var(--z-toast);
@@ -1073,7 +1073,7 @@ tr.arriving {
 
 @keyframes toast-in {
   from {
-    transform: translateY(8px);
+    transform: translateY(-8px);
     opacity: 0;
   }
   to {
