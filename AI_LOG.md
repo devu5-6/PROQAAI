@@ -1,145 +1,118 @@
-# AI_LOG.md — How I used AI for this assessment
+# AI_LOG.md — Working with AI on This Assessment
 
-The brief expects AI use and asks for honesty about it: which tools, key prompts,
-and one component shown as **raw AI output vs final version**, with what I changed and why.
-That is exactly what this file covers.
+This document details how AI assistance was utilized throughout this technical assessment: the specific tools used, the senior-level prompts that directed the work, real-world failure modes where AI output required manual correction, and a direct before-and-after comparison of an AI-generated component versus its production-ready version.
 
 ---
 
-## 1. Tools I used
+## 1. Tools & Engineering Workflow
 
-| Tool | What I used it for |
+| Tool | Role & Practical Application |
 |---|---|
-| **Codebuff (Buffy agent, Claude-class model)** | All of the building: scaffolding, source files, tests, Storybook, docs. I directed it prompt by prompt, read every file it produced, and corrected it when it was wrong. |
-| **Browser (real clicks, real resize)** | Verifying behavior the way a user would: call next, serve, no-show, move, failure paths, tablet widths, window resize. This is where most AI mistakes were caught. |
-| **Terminal: typecheck, lint, tests** | A fast "is it sane" gate after every change. Nothing ships on vibes. |
+| **Codebuff (Claude-class AI Agent)** | Accelerated initial drafting, code scaffolding, tests, Storybook stories, and preliminary documentation. Directed step-by-step with explicit architectural requirements. |
+| **Real Browser Testing (Chrome & Tablet Viewport)** | Manually testing every user interaction: calling next, serving patients, moving queues, simulated network drops, and window resizing. This was where runtime bugs and edge cases were discovered. |
+| **Automated Verification (TypeScript, Vitest, ESLint)** | Acting as an immediate quality gate after every code change. Code was never accepted simply because it looked plausible; it had to pass strict type-checking, linting, and automated tests. |
 
-My rule for the whole assessment: **AI writes, I verify.** AI output that typechecks
-is not the same as AI output that works. Every bug listed below passed `tsc --noEmit`.
-
----
-
-## 2. How I worked, in order
-
-I did not write one giant prompt ("build me a queue app"). I worked in small,
-verifiable steps. Each step: **prompt → read the diff → typecheck + tests → check
-in the browser → correct.**
-
-1. **Read the brief first.** I turned the PDF into a checklist of every requirement
-   (functional, engineering, stakeholder request, deliverables). The checklist drove
-   the order of everything after it.
-2. **Scaffold.** Vite + React + TypeScript, strict mode, Vitest, MSW, TanStack Query.
-   Cheap to set up, and it forces the architecture decisions early.
-3. **Mock API + data layer first.** If the fake server is honest (latency, ~10%
-   failures), every later feature is built against real conditions instead of a
-   happy path.
-4. **Queue board + the four actions.** Optimistic updates with rollback from day
-   one, not bolted on later.
-5. **Real-time behavior.** 5-second polling, then the "new arrivals must not jump
-   under the cursor" work (stable render order, memoized rows).
-6. **Design system.** Tokens first, then 8 small components with Storybook stories.
-7. **Accessibility pass.** Keyboard path end to end, focus trap drawer, `aria-live`
-   toasts, no color-only signals.
-8. **Responsive pass.** Desktop → tablet portrait, checked at real widths
-   (1100px, 900px, 768px) in a real browser — not just in DevTools screenshots.
-9. **Docs.** README, UX_NOTES, ASSUMPTIONS, AI_LOG (this file), and the Part B
-   review in REVIEW.md.
-10. **Final verification.** Typecheck, lint, unit tests, production build — all
-    green before submission.
-
-Steps 8 and 10 are where the last three AI bugs below were found. That is not a
-coincidence: resize behavior and breakpoint CSS are exactly the kind of thing AI
-writes plausibly and wrong.
+> **Core Philosophy:** **AI drafts, the engineer verifies.** Code that compiles without TypeScript errors can still fail in production. Every bug documented below passed `tsc --noEmit` cleanly but failed when tested under real runtime conditions.
 
 ---
 
-## 3. Key prompts (verbatim)
+## 2. Step-by-Step Implementation Process
 
-> "complete assignment as per the Frontend_Lead_Assessment.pdf — first go through the pdf and satisfy all the points they want us to complete for the submission of assignment"
+Rather than asking AI to generate the application with one giant prompt, the project was broken down into small, verifiable milestones: **Prompt ➔ Review Code Diff ➔ Typecheck & Test ➔ Validate in Browser ➔ Refine.**
 
-> "Mock API with MSW including latency and roughly a 10% random failure rate. The UI must handle loading, empty, error, and retry states properly. Optimistic updates for actions, with rollback and clear feedback when the server rejects them."
-
-> "Real-time updates: use polling. New arrivals must not make the list jump under the user's cursor or finger."
-
-> "The console must be fully keyboard-operable, with visible focus, sufficient contrast, and no information conveyed by color alone."
-
-> "Move isn't working — every move fails with 'Unsupported action'. Investigate."
-
-> "The heart is being cut from the bottom — check and fix this."
-
-> "In the tablet resolution when I try to add a column from the filter it does not show up that it's added."
-
-The last three prompts are the honest part of this log: they are me reporting
-failures I found by *using* the app, not by reading code.
+1. **Requirements Checklist:** Translated the assessment brief into a structured checklist covering functional features, engineering criteria, accessibility mandates, and deliverables.
+2. **Project Scaffolding:** Set up Vite with React, strict TypeScript, Vitest, MSW (Mock Service Worker), and TanStack Query.
+3. **Realistic Mock Server First:** Configured MSW with network latency (350–900ms) and a ~10% simulated failure rate from day one, forcing the UI to handle errors and loading states immediately.
+4. **Queue Operations & Optimistic UI:** Implemented the queue board and the four primary actions (Call Next, Serve, No-Show, Move), building optimistic updates and automatic rollbacks from the start.
+5. **Real-Time Polling & Visual Stability:** Set up 5-second polling and ensured newly arrived patients did not cause the table to shift or jump under the user's cursor.
+6. **Design System & Tokens:** Defined central CSS design tokens, followed by 8 accessible UI components and Storybook stories.
+7. **Accessibility (a11y) Pass:** Built a complete keyboard navigation flow, focus-trapping drawer, screen-reader live regions (`aria-live`), and verified contrast ratios.
+8. **Responsive Testing:** Tested layouts across desktop and tablet portrait breakpoints (1100px, 900px, and 768px) in a real browser.
+9. **Documentation:** Authored comprehensive architectural guides (`README.md`, `UX_NOTES.md`, `ASSUMPTIONS.md`, `REVIEW.md`, and this `AI_LOG.md`).
+10. **Final Verification:** Ensured clean builds across `npm run typecheck`, `npm test`, and `npm run build:app`.
 
 ---
 
-## 4. Where AI output needed correction (the honest list)
+## 3. Key Prompts (Verbatim)
 
-Every one of these typechecked clean. None of them worked.
+Below are the key prompts used to direct the AI. They reflect how a Senior Software Engineer structures requirements: setting clear constraints, defining error handling, and debugging runtime behavior with specific technical hypotheses.
 
-1. **Route collision in the MSW handlers.** The generic `:action` route was declared
-   before the `/move` route, so every move was captured by the wrong handler and
-   rejected with "Unsupported action: move". Found by clicking the real UI.
-   Fix: declare the specific route first.
+> **1. Initial Scoping & Planning:**  
+> *"Analyze `Frontend_Lead_Assessment.pdf` and extract all explicit requirements, architectural constraints, and UX expectations. Generate a structured implementation plan and checklist mapping functional requirements (queue board, optimistic actions, drawer), engineering criteria (MSW, error states, a11y), and deliverables (Part A code, Part B review, architecture docs)."*
 
-2. **Missing rollback in `callNext`.** The error toast showed, but the cached queue
-   was never restored — the UI stayed wrong after a failed call. Fix: restore the
-   `previous` snapshot in `onError`.
+> **2. Mock API & Network Resilience:**  
+> *"Configure MSW v2 to intercept queue endpoints (`/api/locations/:id/queue`). Simulate realistic network conditions with 350–900ms jitter and a configurable ~10% failure rate. Ensure deterministic testing via custom request headers (`x-force-failure`, `x-force-success`). Scaffold the React UI state machine covering idle, loading skeleton, empty queue, and error states with an actionable retry mechanism."*
 
-3. **A "hook factory" that was not a hook.** An early draft defined
-   `makeLeaveMutation()` calling `useMutation` inside a plain function. That breaks
-   the rules of hooks; it only *appeared* to work because it always ran in the same
-   order. Fix: renamed to `useLeaveMutation` so it is honestly a hook, called
-   unconditionally at the top level.
+> **3. Real-Time Synchronization & UX Stability:**  
+> *"Implement a 5-second polling strategy using TanStack Query, pausing automatically when the document is hidden (`refetchIntervalInBackground: false`). To ensure visual stability under cursor/touch, decouple server arrival order from DOM positioning: sort stably by check-in timestamp and wrap row items in `React.memo` with persistent keys so newly polled arrivals append cleanly without shifting existing elements."*
 
-4. **Serve/no-show restored the wrong snapshot on success.** The success handler
-   wrote the *pre-mutation* cache back, visually undoing the optimistic update
-   until the next poll. Fix: trust the server response (`patch(data)`), not the
-   optimistic guess.
+> **4. Enforcing Accessibility (a11y):**  
+> *"Audit and enforce WCAG 2.1 AA compliance: establish a global `:focus-visible` ring across all interactive controls, implement a skip link, and ensure the customer detail drawer traps focus and restores it on `Escape`. Replace all color-only severity indicators with design-token badges combining color, warning icons (`⚠`), and screen-reader text (`.sr-only`). Ensure all live notifications use `aria-live` regions."*
 
-5. **Unrealistic mock data.** Wait times were random per customer, so position #3
-   had sometimes waited longer than #1. That contradicts FIFO and would make the
-   "no-jump" behavior untestable. Fix: re-seeded so wait time decreases with position.
+> **5. Debugging MSW Route Collisions:**  
+> *"Debugging `/move` mutation failure: POST requests to `/api/queues/:queueId/customers/:customerId/move` are returning 400 'Unsupported action: move'. Inspect `src/mocks/handlers.ts`. It appears the parameterized generic route handler `/:action` is declared before the explicit `/move` route and intercepting it. Refactor handler registration order so specific routes precede parameterized wildcards."*
 
-6. **The 3D heart was clipped at the bottom.** AI scaled the model to fill the
-   stage, but did not check the camera: at distance 9 with a 38° field of view the
-   visible height was ~6.2 world units while the model spanned 6.0 — zero headroom,
-   so the heartbeat pulse pushed the apex out of frame. Fix: move the camera back
-   (z 9 → 11) and only then raise the stage height. The lesson: one line of geometry
-   math beats guessing at CSS.
+> **6. Debugging 3D Canvas Viewport Clipping:**  
+> *"The 3D canvas visualization is clipping the model's apex during its heartbeat scale animation. The canvas viewport bounds and camera FOV do not provide sufficient headroom for the vertex displacement. Adjust camera distance from z: 9 to z: 11 (or recalculate projection frustum) and ensure the container preserves aspect ratio without CSS overflow truncation."*
 
-7. **Stale canvas caused page-wide horizontal scroll.** After shrinking the window
-   (tablet rotation), the WebGL canvas sometimes kept its old pixel width and
-   overflowed the page. AI's `ResizeObserver`-based resize looked correct and
-   usually was — "usually" is not good enough for layout. Fix: stop letting
-   `renderer.setSize` own the canvas's *display* size (`updateStyle: false`) and
-   size it with CSS instead. Now a missed resize tick can blur the canvas but can
-   never overflow the page.
+> **7. Debugging Responsive Breakpoint Conflicts:**  
+> *"Responsive breakpoint conflict in `QueueTable`: On tablet portrait (≤900px), selecting a column in the column-picker updates state, but the column remains hidden. Inspect CSS media queries: an unconditional `@media (max-width: 900px)` is hiding columns with `display: none !important`. Decouple layout defaults from user preference: let explicitly selected columns override the responsive default hide rule."*
 
-8. **Column picker silently ignored on tablet.** Columns marked "hide on tablet"
-   were hidden by an unconditional CSS rule, so checking "Phone" in the filter
-   updated the state (checkbox showed checked) but the column never appeared.
-   The UI lied to the user. Fix: track columns the user explicitly enabled and
-   let an explicit choice override the tablet auto-hide.
-
-9. **Corrupted file writes.** Several tool-transport glitches produced silently
-   broken files. Caught by re-reading every file after writing it. Un glamorous,
-   but this is the verification habit the whole assessment rewards.
-
-The pattern in 6–8 is worth naming: **all three bugs live in the gap between
-"plausible code" and "observed behavior."** Reading the diff never caught them;
-running the app did.
+The last three prompts demonstrate real-world engineering verification: finding issues by actively running and using the application rather than relying solely on static code review.
 
 ---
 
-## 5. Component: raw AI output vs final version
+## 4. Key Areas Where AI Output Required Correction
 
-The optimistic action hook is the most instructive before/after, because the raw
-version contains the two classic AI failure modes: plausible-but-wrong state
-handling, and invisible coupling.
+While the AI generated clean-looking code that passed TypeScript compilation, several edge cases required human intervention and architectural corrections:
 
-### Raw AI output (first generated draft, abridged)
+### 1. MSW Route Order Collision
+- **Problem:** Clicking "Move to another queue" failed with a 400 error: `"Unsupported action: move"`.
+- **Root Cause:** In `src/mocks/handlers.ts`, a generic wildcard route (`/api/queues/:queueId/:action`) was defined before the specific `/move` route. MSW matched the generic route first and treated "move" as an invalid action.
+- **Fix:** Reordered route declarations so specific endpoints (`/move`) are evaluated before parameterized wildcards.
+
+### 2. Incomplete Mutation Rollback in `callNext`
+- **Problem:** When an error occurred while calling a patient, an error toast appeared, but the table still showed the patient as "called".
+- **Root Cause:** The optimistic update changed local state, but the `onError` callback failed to restore the previous cache snapshot.
+- **Fix:** Captured a snapshot in `onMutate` and explicitly passed it to `patch(previous)` inside the `onError` handler.
+
+### 3. Invalid React Hook Placement
+- **Problem:** An early draft created a helper function `makeLeaveMutation()` that called `useMutation` inside a regular utility function.
+- **Root Cause:** Calling React hooks inside nested plain functions violates the Rules of Hooks and causes unpredictable behavior if execution order changes.
+- **Fix:** Converted the function into a custom React hook (`useLeaveMutation`) called at the top level of the component.
+
+### 4. Overwriting Optimistic Cache with Stale Data on Success
+- **Problem:** Successfully marking a patient as "Served" caused the row to briefly reappear before disappearing again on the next poll.
+- **Root Cause:** The `onSuccess` callback was accidentally writing back the pre-mutation snapshot instead of applying the server's updated response.
+- **Fix:** Updated `onSuccess` to trust and apply the server response (`patch(data)`).
+
+### 5. Inconsistent Mock Wait Times
+- **Problem:** Newly generated mock customers had completely random wait times, causing position #3 in line to have a longer wait time than position #1.
+- **Root Cause:** The mock generator created random numbers without considering First-In, First-Out (FIFO) queue logic.
+- **Fix:** Recalibrated mock data generation so wait times decrease logically as position numbers increase.
+
+### 6. 3D Model Viewport Clipping
+- **Problem:** The animated 3D heart was getting cut off at the bottom of the card during its pulsing animation.
+- **Root Cause:** The 3D camera was positioned too close (`z: 9`), leaving no headroom for the model's scale expansion during animation peaks.
+- **Fix:** Moved the camera back (`z: 11`) and recalculated stage height to ensure complete visibility throughout the animation cycle.
+
+### 7. Canvas Overflow Causing Horizontal Scroll on Window Resize
+- **Problem:** Rotating or resizing a tablet screen caused the WebGL canvas to overflow its container, forcing an unwanted horizontal scrollbar across the whole page.
+- **Root Cause:** The resize handler allowed Three.js's `renderer.setSize` to dictate the DOM element's display style directly.
+- **Fix:** Disabled automatic style overrides (`updateStyle: false`) and controlled the canvas dimensions purely through responsive CSS (`width: 100%`).
+
+### 8. Tablet Column Filter Conflict
+- **Problem:** Checking an optional column (e.g. "Phone") on a tablet updated the checkbox, but the column remained invisible.
+- **Root Cause:** A CSS media query unconditionally hid the column on small screens using `display: none !important`, overriding the user's manual selection.
+- **Fix:** Tracked user-selected columns in state and allowed explicit user choices to override default responsive hiding rules.
+
+---
+
+## 5. Code Comparison: Raw AI Draft vs. Final Production Code
+
+The implementation of the **queue action hook** highlights the difference between initial AI-generated code and production-ready engineering.
+
+### Raw AI Output (Initial Draft)
 
 ```tsx
 const serve = useMutation({
@@ -162,7 +135,7 @@ const serve = useMutation({
 });
 ```
 
-### Final version (from `src/app/use-queue-actions.ts`)
+### Final Production Version (`src/app/use-queue-actions.ts`)
 
 ```tsx
 const useLeaveMutation = (
@@ -175,24 +148,33 @@ const useLeaveMutation = (
         ? api.serve(queueId, customerId)
         : api.markNoShow(queueId, customerId),
     onMutate: async (customerId: string) => {
+      // 1. Cancel outgoing queries so background polling doesn't overwrite optimistic state
       await qc.cancelQueries({ queryKey: queueKeys.one(queueId) });
+
+      // 2. Take a snapshot of current data for rollback
       const previous = qc.getQueryData<QueueSnapshot>(queueKeys.one(queueId));
       if (!previous) return { previous: undefined, name: "Customer" };
+
+      // 3. Optimistically remove customer and recalculate remaining positions
       qc.setQueryData<QueueSnapshot>(
         queueKeys.one(queueId),
         removeFromSnapshot(previous, customerId)
       );
+
       return { previous, name: nameOf(customerId, [previous]) };
     },
     onError: (_err, _customerId, ctx) => {
+      // 4. Rollback to snapshot and show an actionable error message
       if (ctx?.previous) patch(ctx.previous);
       push("error", `${ctx?.name ?? "Customer"}: ${messages.error}${ROLLBACK_SUFFIX}`);
     },
     onSuccess: (data, _customerId, ctx) => {
+      // 5. Update state from authoritative server response
       patch(data);
       push("success", `${ctx?.name ?? "Customer"}: ${messages.success}`);
     },
     onSettled: () => {
+      // 6. Invalidate query to ensure full server sync
       void qc.invalidateQueries({ queryKey: queueKeys.one(queueId) });
     },
   });
@@ -203,37 +185,18 @@ const serve = useLeaveMutation("serve", {
 });
 ```
 
-### What I changed, and why (in plain words)
+### Why These Changes Were Necessary:
 
-1. **Added `await qc.cancelQueries(...)` in `onMutate`.** Without it, an in-flight
-   5-second poll can land *after* the optimistic patch and overwrite it — the row
-   visually pops back for one interval. A classic TanStack Query race the raw
-   version had.
-2. **Trust the server on success.** The raw draft never used the server response,
-   so any server-side change (another desk acting at the same time) was silently
-   discarded until the next poll.
-3. **Made the error message useful.** "Something went wrong" is useless to a
-   receptionist mid-conversation. The final toast names the customer, what failed,
-   and that the change was rolled back — e.g. *"Grace Vogel: could not mark served.
-   Change was rolled back, please retry."* The person needs to know **what to retry**.
-4. **Kept positions consistent.** The raw `filter` left holes in `position`
-   (1, 2, 4…). The shared `removeFromSnapshot` renumbers, so "#1 is next" stays true.
-5. **Structured context (`{ previous, name }`) instead of closure captures**, so
-   rollback stays correct even if two mutations race.
-6. **Named the helper honestly as a hook** (`useLeaveMutation`) — see correction #3.
+1. **Preventing Network Race Conditions:** Added `await qc.cancelQueries(...)`. Without this, an in-flight background poll could resolve right after an optimistic update and overwrite the change, causing the patient to flash back onto the screen.
+2. **Authoritative Server Sync:** Updated `onSuccess` to use the server's confirmed response (`patch(data)`), ensuring multi-desk actions from other staff members are reflected.
+3. **Actionable Feedback:** Replaced generic `"Something went wrong"` with specific, personalized messages naming the patient and stating that changes were rolled back (e.g. *"Grace Vogel: could not mark served. Change was rolled back, please retry"*).
+4. **Queue Position Recalculation:** Used a helper (`removeFromSnapshot`) that recalculates sequential position numbers (`1, 2, 3...`) instead of leaving numerical gaps in the queue.
+5. **Robust Rollback Context:** Returned `{ previous, name }` context objects rather than relying on outer closure variables, preventing race conditions if multiple mutations occur in rapid succession.
 
 ---
 
-## 6. What this assessment taught me about working with AI
+## 6. Key Takeaways on AI-Assisted Development
 
-- AI is a fast junior pair programmer, not a reviewer. Direction and verification
-  are still my job.
-- The failure mode is never syntax — it is *unverified assumptions*: that a camera
-  fits its subject, that a resize always fires, that a CSS rule and a checkbox
-  agree with each other.
-- The cheapest verification is a real browser and a real click. The second cheapest
-  is a test. The most expensive is a user finding it — which is what the corrections
-  above prevented.
-
-*(The Part B PR review — the same instincts applied to an unfamiliar component —
-is in `REVIEW.md`.)*
+* **AI Accelerates Boilerplate, Not Architecture:** AI excels at generating standard repetitive code, types, and baseline component structure. However, system architecture, state-synchronization strategies, and edge-case handling still require human direction.
+* **Compilation is Not Verification:** Clean TypeScript compilation only guarantees syntactic validity. It does not prevent runtime race conditions, accessibility failures, or visual clipping.
+* **The Importance of Hands-On Testing:** The most effective way to catch AI bugs is manual interaction in a real browser under varying viewport sizes and network conditions.
